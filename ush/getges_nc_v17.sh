@@ -1,10 +1,10 @@
 #!/bin/ksh
 ################################################################################
 #
-# Name:  getges_nc.sh            Author:  Mark Iredell
+# Name:  getges_nc_v17.sh            Author:  Mark Iredell
 #
 # Abstract:
-# This script starts as a version of getges.sh
+# This script starts as a version of getges_nc.sh (which is a ver of getges.sh) 
 # This script copies the valid global guess file to a given file.
 # Alternatively, it writes the name of the guess file to standard output.
 # Specify option "-n network" for the job network (default global).
@@ -93,6 +93,7 @@
 #                                         logf file) prior to committing to cp'ing the
 #                                         file to sgesprep. This primarily impacts
 #                                         rap_prep at cycles 03, 09, 15, 21.
+#          2026 June        Genkova       Updated getges_nc.sh for GFSv17
 #####
 #
 ################################################################################
@@ -146,7 +147,7 @@ fi
 if [[ $gfile = '?' || $# -gt 1 || $err -ne 0 || -z $valid ||\
       $netwk = '?' || $envir = '?' || $fhour = '?' || $resol = '?' ||\
       $typef = '?' || $valid = '?' ]];then
- echo "Usage: getges_nc.sh [-n network] [-e environment] [-f fhour] [-q] [-r resolution]" >&2
+ echo "Usage: getges_nc_v17.sh [-n network] [-e environment] [-f fhour] [-q] [-r resolution]" >&2
  echo "                 [-t filetype] [-v valid] [gfile]" >&2
  if [[ $netwk = '?' ]];then
   echo "         network choices:" >&2
@@ -227,29 +228,29 @@ getlist00=""
 # GDAS
 if [[ "$netwk" = "gdas" ]];then
  if [ -z "$COMINgdas" ]; then
-   echo "getges_nc.sh ERROR: The \$COMINgdas variable must be defined." >&2
+   echo "getges_nc_v17.sh ERROR: The \$COMINgdas variable must be defined." >&2
    exit 1
  fi
  fhend=12
  case $typef in
   biascr) geslist='
-   $COMINgdas/gdas.t${cyc}z.abias.txt'
+   $COMINgdas/analysis/atmos/gdas.t${cyc}z.abias.txt'
    ;;
   biascr_pc) geslist='
-   $COMINgdas/gdas.t${cyc}z.abias_pc.txt'
+   $COMINgdas/analysis/atmos/gdas.t${cyc}z.abias_pc.txt'
    ;;
   biascr_air) geslist='
-   $COMINgdas/gdas.t${cyc}z.abias_air.txt'
+   $COMINgdas/gdas.t${cyc}z.abias_air'
    ;;
   radstat) geslist='
-   $COMINgdas/gdas.t${cyc}z.radstat.tar'
+   $COMINgdas/gdas.t${cyc}z.radstat'
    ;;
   pgbges) geslist='
    $COMINgdas/gdas.t${cyc}z.pgrbh$fh 
    $COMINgdas/gdas.t${cyc}z.pgrbf$fh'
    ;;
   pg2ges) geslist='
-   $COMINgdas/gdas.t${cyc}z.pres_a.0p25.f$gh.grib2'
+   $COMINgdas/products/atmos/gdas.t${cyc}z.pres_a.0p25.f$gh.grib2'
    ;;
   pgbgm6) geslist='
    $COMINgdas/gdas.t${cyc}z.pgrbh$fhm6 
@@ -269,7 +270,7 @@ if [[ "$netwk" = "gdas" ]];then
    fhbeg=00
    ;;
   pg2cur) geslist='
-   $COMINgdas/gdas.t${cyc}z.pres_a.0p25.f$gh.grib2'
+   $COMINgdas/products/atmos/gdas.t${cyc}z.pres_a.0p25.f$gh.grib2'
    fhbeg=00
    ;;
   prepqc) geslist='
@@ -278,17 +279,17 @@ if [[ "$netwk" = "gdas" ]];then
    fhend=00
    ;;
   tcvg12) geslist='
-   $COMINgdas/gdas.t${cyc}z.syndata.tcvitals.tm00'
+   $COMINgdas/obs/gdas.t${cyc}z.syndata.tcvitals.tm00'
    fhbeg=12
    fhend=12
    ;;
   tcvges) geslist='
-   $COMINgdas/gdas.t${cyc}z.syndata.tcvitals.tm00'
+   $COMINgdas/obs/gdas.t${cyc}z.syndata.tcvitals.tm00'
    fhbeg=06
    fhend=06
    ;;
   tcvitl) geslist='
-   $COMINgdas/gdas.t${cyc}z.syndata.tcvitals.tm00'
+   $COMINgdas/obs/gdas.t${cyc}z.syndata.tcvitals.tm00'
    fhbeg=00
    fhend=00
    ;;
@@ -303,12 +304,12 @@ if [[ "$netwk" = "gdas" ]];then
    fhinc=06
    ;;
   snogrb_574) geslist='
-   $COMINgdas/gdas.t${cyc}z.snogrb_t574.1152.576'
+   $COMINgdas/obs/gdas.t${cyc}z.snogrb_t574.1152.576'
    fhbeg=00
    fhinc=06
    ;;
   snogrb_1534) geslist='
-   $COMINgdas/gdas.t${cyc}z.snogrb_t1534.3072.1536'
+   $COMINgdas/obs/gdas.t${cyc}z.snogrb_t1534.3072.1536'
    fhbeg=00
    fhinc=06
    ;;
@@ -318,57 +319,57 @@ if [[ "$netwk" = "gdas" ]];then
    fhinc=06
    ;;
   natges) geslist='
-   $COMINgdas/gdas.t${cyc}z.atm.f$gh.nc'
+   $COMINgdas/model/atmos/history/gdas.t${cyc}z.atm.f$gh.nc'
    ;;
   natgm3) geslist='
-   $COMINgdas/gdas.t${cyc}z.atm.f$ghm3.nc'
+   $COMINgdas/model/atmos/history/gdas.t${cyc}z.atm.f$ghm3.nc'
    ;;
   natgm2) geslist='
-   $COMINgdas/gdas.t${cyc}z.atm.f$ghm2.nc'
+   $COMINgdas/model/atmos/history/gdas.t${cyc}z.atm.f$ghm2.nc'
    ;;
   natgm1) geslist='
-   $COMINgdas/gdas.t${cyc}z.atm.f$ghm1.nc'
+   $COMINgdas/model/atmos/history/gdas.t${cyc}z.atm.f$ghm1.nc'
    ;;
   natgp1) geslist='
-   $COMINgdas/gdas.t${cyc}z.atm.f$ghp1.nc'
+   $COMINgdas/model/atmos/history/gdas.t${cyc}z.atm.f$ghp1.nc'
    ;;
   natgp2) geslist='
-   $COMINgdas/gdas.t${cyc}z.atm.f$ghp2.nc'
+   $COMINgdas/model/atmos/history/gdas.t${cyc}z.atm.f$ghp2.nc'
    ;;
   natgp3) geslist='
-   $COMINgdas/gdas.t${cyc}z.atm.f$ghp3.nc'
+   $COMINgdas/model/atmos/history/gdas.t${cyc}z.atm.f$ghp3.nc'
    ;;
   natcur) geslist='
-   $COMINgdas/gdas.t${cyc}z.atm.f$gh.nc'
+   $COMINgdas/model/atmos/history/gdas.t${cyc}z.atm.f$gh.nc'
    getlist00='
-   $COMINgdas/gdas.t${cyc}z.anl.atm.nc'
+   $COMINgdas/analysis/atmos/gdas.t${cyc}z.analysis.atm.a006.nc'
    fhbeg=00
    ;;
   nsfges) geslist='
-   $COMINgdas/gdas.t${cyc}z.sfc.f$gh.nc'
+   $COMINgdas/model/atmos/gdas.t${cyc}z.sfc.f$gh.nc'
    ;;
   nsfgm3) geslist='
-   $COMINgdas/gdas.t${cyc}z.sfc.f$ghm3.nc'
+   $COMINgdas/model/atmos/gdas.t${cyc}z.sfc.f$ghm3.nc'
    ;;
   nsfgm2) geslist='
-   $COMINgdas/gdas.t${cyc}z.sfc.f$ghm2.nc'
+   $COMINgdas/model/atmos/gdas.t${cyc}z.sfc.f$ghm2.nc'
    ;;
   nsfgm1) geslist='
-   $COMINgdas/gdas.t${cyc}z.sfc.f$ghm1.nc'
+   $COMINgdas/model/atmos/gdas.t${cyc}z.sfc.f$ghm1.nc'
    ;;
   nsfgp1) geslist='
-   $COMINgdas/gdas.t${cyc}z.sfc.f$ghp1.nc'
+   $COMINgdas/model/atmos/gdas.t${cyc}z.sfc.f$ghp1.nc'
    ;;
   nsfgp2) geslist='
-   $COMINgdas/gdas.t${cyc}z.sfc.f$ghp2.nc'
+   $COMINgdas/model/atmos/gdas.t${cyc}z.sfc.f$ghp2.nc'
    ;;
   nsfgp3) geslist='
-   $COMINgdas/gdas.t${cyc}z.sfc.f$ghp3.nc'
+   $COMINgdas/model/atmos/gdas.t${cyc}z.sfc.f$ghp3.nc'
    ;;
   nsfcur) geslist='
-   $COMINgdas/gdas.t${cyc}z.sfc.f$gh.nc'
+   $COMINgdas/model/atmos/gdas.t${cyc}z.sfc.f$gh.nc'
    getlist00='
-   $COMINgdas/gdas.t${cyc}z.anl.sfc.nc'
+   $COMINgdas/analysis/atmos/gdas.t${cyc}z.analysis.sfc.a006.nc'
    fhbeg=00
    ;;
   nstcur) geslist='
@@ -392,7 +393,7 @@ if [[ "$netwk" = "gdas" ]];then
 # CFS-CDAS
 elif [[ "$netwk" = "cfs-cdas" ]];then
  if [ -z "$COMINcfs_cdas" ]; then
-   echo "getges_nc.sh ERROR: The \$COMINcfs_cdas variable must be defined." >&2
+   echo "getges_nc_v17.sh ERROR: The \$COMINcfs_cdas variable must be defined." >&2
    exit 1
  fi
  fhend=12
@@ -588,23 +589,23 @@ elif [[ "$netwk" = "cfs-cdas" ]];then
    ;;
  esac
 
-# GFS
+# GFS - CONTINUE HERE IG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 elif [[ "$netwk" = "gfs" ]];then
  if [ -z "$COMINgfs" ]; then
-   echo "getges_nc.sh ERROR: The \$COMINgfs variable must be defined." >&2
+   echo "getges_nc_v17.sh ERROR: The \$COMINgfs variable must be defined." >&2
    exit 1
  fi
  fhend=384
  case $typef in
   natges) geslist='
-   $COMINgfs/gfs.t${cyc}z.atm.f$gh.nc'
+   $COMINgfs/model/atmos/history/gfs.t${cyc}z.atm.f$gh.nc'
    ;;
   pgbcur) geslist='
    $COMINgfs/gfs.t${cyc}z.pgrbf$fh'
    fhbeg=00
    ;;
   pg2cur) geslist='
-   $COMINgfs/gfs.t${cyc}z.pres_a.0p25.f$gh.grib2'
+   $COMINgfs/products/atmos/grib2/0p25/gfs.t${cyc}z.pres_a.0p25.f$gh.grib2'
    fhbeg=00
    ;;
   prepqc) geslist='
@@ -613,7 +614,7 @@ elif [[ "$netwk" = "gfs" ]];then
    fhend=00
    ;;
   tcvitl) geslist='
-   $COMINgfs/gfs.t${cyc}z.syndata.tcvitals.tm00'
+   $COMINgfs/obs/gfs.t${cyc}z.syndata.tcvitals.tm00'
    fhbeg=00
    fhend=00
    ;;
@@ -638,15 +639,15 @@ elif [[ "$netwk" = "gfs" ]];then
    fhinc=06
    ;;
   natcur) geslist='
-   $COMINgfs/gfs.t${cyc}z.atm.f$gh.nc'
+   $COMINgfs/model/atmos/history/gfs.t${cyc}z.atm.f$gh.nc'
    getlist00='
-   $COMINgfs/gfs.t${cyc}z.anl.atm.nc'
+   $COMINgfs/analysis/atmos/gfs.t${cyc}z.analysis.atm.a006.nc'
    fhbeg=00
    ;;
   nsfcur) geslist='
    $COMINgfs/gfs.t${cyc}z.sfc.f$gh.nc'
    getlist00='
-   $COMINgfs/gfs.t${cyc}z.anl.sfc.nc'
+   $COMINgfs/gfs.t${cyc}z.analysis.sfc.a006.nc'
    fhbeg=00
    ;;
   nstcur) geslist='
@@ -664,7 +665,7 @@ elif [[ "$netwk" = "gfs" ]];then
 # CDAS
 elif [[ "$netwk" = "cdas" ]];then
  if [ -z "$COMINcdas" ]; then
-   echo "getges_nc.sh ERROR: The \$COMINcdas variable must be defined." >&2
+   echo "getges_nc_v17.sh ERROR: The \$COMINcdas variable must be defined." >&2
    exit 1
  fi
  fhbeg=06
@@ -825,7 +826,7 @@ elif [[ "$netwk" = "cdas" ]];then
 # CDC CDAS
 elif [[ "$netwk" = "cdc" ]];then
  if [ -z "$COMINcdc" ]; then
-   echo "getges_nc.sh ERROR: The \$COMINcdc variable must be defined." >&2
+   echo "getges_nc_v17.sh ERROR: The \$COMINcdc variable must be defined." >&2
    exit 1
  fi
  fhbeg=06
@@ -986,11 +987,11 @@ elif [[ "$netwk" = "cdc" ]];then
 # Any resolution production
 elif [[ "$netwk" = "global" ]];then
  if [ -z "$COMINgdas" ]; then
-   echo "getges_nc.sh ERROR: The \$COMINgdas variable must be defined." >&2
+   echo "getges_nc_v17.sh ERROR: The \$COMINgdas variable must be defined." >&2
    exit 1
  fi
  if [ -z "$COMINgfs" ]; then
-   echo "getges_nc.sh ERROR: The \$COMINgfs variable must be defined." >&2
+   echo "getges_nc_v17.sh ERROR: The \$COMINgfs variable must be defined." >&2
    exit 1
  fi
  GETGES_NWG=${GETGES_NWG:-${COMROOT:?}/nwges}
@@ -1105,8 +1106,8 @@ elif [[ "$netwk" = "global" ]];then
    fhbeg=00
    ;;
   pg2cur) geslist='
-   $GETGES_NWG/$envir/gdas.$day/gdas.t${cyc}z.pres_a.0p50.f$gh.grib2
-   $COMINgdas/gdas.t${cyc}z.pres_a.0p50.f$gh.grib2
+   $GETGES_NWG/$envir/gdas.$day/gdas.t${cyc}z.pgrb2.0p50.f$gh
+   $COMINgdas/gdas.t${cyc}z.pgrb2.0p50.f$gh
    $GETGES_NWG/$envir/gfs.$day/gfs.t${cyc}z.pres_a.0p50.f$gh.grib2
    $COMINgfs/gfs.t${cyc}z.pres_a.0p50.f$gh.grib2'
    fhbeg=00
@@ -1121,25 +1122,25 @@ elif [[ "$netwk" = "global" ]];then
    ;;
   tcvg12) geslist='
    $GETGES_NWG/$envir/gdas.$day/gdas.t${cyc}z.syndata.tcvitals.tm00
-   $COMINgdas/gdas.t${cyc}z.syndata.tcvitals.tm00
+   $COMINgdas/obs/gdas.t${cyc}z.syndata.tcvitals.tm00
    $GETGES_NWG/$envir/gfs.$day/gfs.t${cyc}z.syndata.tcvitals.tm00
-   $COMINgfs/gfs.t${cyc}z.syndata.tcvitals.tm00'
+   $COMINgfs/obs/gfs.t${cyc}z.syndata.tcvitals.tm00'
    fhbeg=12
    fhend=12
    ;;
   tcvges) geslist='
    $GETGES_NWG/$envir/gdas.$day/gdas.t${cyc}z.syndata.tcvitals.tm00
-   $COMINgdas/gdas.t${cyc}z.syndata.tcvitals.tm00
+   $COMINgdas/obs/gdas.t${cyc}z.syndata.tcvitals.tm00
    $GETGES_NWG/$envir/gfs.$day/gfs.t${cyc}z.syndata.tcvitals.tm00
-   $COMINgfs/gfs.t${cyc}z.syndata.tcvitals.tm00'
+   $COMINgfs/obs/gfs.t${cyc}z.syndata.tcvitals.tm00'
    fhbeg=06
    fhend=06
    ;;
   tcvitl) geslist='
    $GETGES_NWG/$envir/gdas.$day/gdas.t${cyc}z.syndata.tcvitals.tm00
-   $COMINgdas/gdas.t${cyc}z.syndata.tcvitals.tm00
+   $COMINgdas/obs/gdas.t${cyc}z.syndata.tcvitals.tm00
    $GETGES_NWG/$envir/gfs.$day/gfs.t${cyc}z.syndata.tcvitals.tm00
-   $COMINgfs/gfs.t${cyc}z.syndata.tcvitals.tm00'
+   $COMINgfs/obs/gfs.t${cyc}z.syndata.tcvitals.tm00'
    fhbeg=00
    fhend=00
    ;;
@@ -1184,55 +1185,55 @@ elif [[ "$netwk" = "global" ]];then
    fhinc=06
    ;;
   natges) geslist='
-   $COMINgdas/gdas.t${cyc}z.atm.f$gh.nc
-   $COMINgfs/gfs.t${cyc}z.atm.f$gh.nc'
+   $COMINgdas/model/atmos/history/gdas.t${cyc}z.atm.f$gh.nc
+   $COMINgfs/model/atmos/history/gfs.t${cyc}z.atm.f$gh.nc'
    ((vhr=$valid%100))
    if [[ $(($vhr % 3)) -ne 0 ]]; then
       fhinc=01
    fi
    ;;
   natgm3) geslist='
-   $COMINgdas/gdas.t${cyc}z.atm.f$ghm3.nc
-   $COMINgfs/gfs.t${cyc}z.atm.f$ghm3.nc'
+   $COMINgdas/model/atmos/history/gdas.t${cyc}z.atm.f$ghm3.nc
+   $COMINgfs/model/atmos/history/gfs.t${cyc}z.atm.f$ghm3.nc'
    ;;
   natgm2) geslist='
    $GETGES_NWG/$envir/gdas.$day/gdas.t${cyc}z.atm.f$ghm2.nc
-   $COMINgdas/gdas.t${cyc}z.atm.f$ghm2.nc
+   $COMINgdas/model/atmos/history/gdas.t${cyc}z.atm.f$ghm2.nc
    $GETGES_NWG/$envir/gfs.$day/gfs.t${cyc}z.atm.f$ghm2.nc
-   $COMINgfs/gfs.t${cyc}z.atm.f$ghm2.nc'
+   $COMINgfs/model/atmos/historygfs.t${cyc}z.atm.f$ghm2.nc'
    ;;
   natgm1) geslist='
    $GETGES_NWG/$envir/gdas.$day/gdas.t${cyc}z.atm.f$ghm1.nc
-   $COMINgdas/gdas.t${cyc}z.atm.f$ghm1.nc
+   $COMINgdas/model/atmos/history/gdas.t${cyc}z.atm.f$ghm1.nc
    $GETGES_NWG/$envir/gfs.$day/gfs.t${cyc}z.atm.f$ghm1.nc
-   $COMINgfs/gfs.t${cyc}z.atm.f$ghm1.nc'
+   $COMINgfs/model/atmos/history/gfs.t${cyc}z.atm.f$ghm1.nc'
    ;;
   natgp1) geslist='
    $GETGES_NWG/$envir/gdas.$day/gdas.t${cyc}z.atm.f$ghp1.nc
-   $COMINgdas/gdas.t${cyc}z.atm.f$ghp1.nc
+   $COMINgdas/model/atmos/history/gdas.t${cyc}z.atm.f$ghp1.nc
    $GETGES_NWG/$envir/gfs.$day/gfs.t${cyc}z.atm.f$ghp1.nc
-   $COMINgfs/gfs.t${cyc}z.atm.f$ghp1.nc'
+   $COMINgfs/model/atmos/history/gfs.t${cyc}z.atm.f$ghp1.nc'
    ;;
   natgp2) geslist='
    $GETGES_NWG/$envir/gdas.$day/gdas.t${cyc}z.atm.f$ghp2.nc
-   $COMINgdas/gdas.t${cyc}z.atm.f$ghp2.nc
+   $COMINgdas/model/atmos/history/gdas.t${cyc}z.atm.f$ghp2.nc
    $GETGES_NWG/$envir/gfs.$day/gfs.t${cyc}z.atm.f$ghp2.nc
-   $COMINgfs/gfs.t${cyc}z.atm.f$ghp2.nc'
+   $COMINgfs/model/atmos/history/gfs.t${cyc}z.atm.f$ghp2.nc'
    ;;
   natgp3) geslist='
-   $COMINgdas/gdas.t${cyc}z.atm.f$ghp3.nc
-   $COMINgfs/gfs.t${cyc}z.atm.f$ghp3.nc'
+   $COMINgdas/model/atmos/history/gdas.t${cyc}z.atm.f$ghp3.nc
+   $COMINgfs/model/atmos/history/gfs.t${cyc}z.atm.f$ghp3.nc'
    ;;
   natcur) geslist='
    $GETGES_NWG/$envir/gdas.$day/gdas.t${cyc}z.atm.f$gh.nc
-   $COMINgdas/gdas.t${cyc}z.atm.f$gh.nc
+   $COMINgdas/model/atmos/history/gdas.t${cyc}z.atm.f$gh.nc
    $GETGES_NWG/$envir/gfs.$day/gfs.t${cyc}z.atm.f$gh.nc
-   $COMINgfs/gfs.t${cyc}z.atm.f$gh.nc'
+   $COMINgfs/model/atmos/history/gfs.t${cyc}z.atm.f$gh.nc'
    getlist00='
-   $GETGES_NWG/$envir/gdas.$day/gdas.t${cyc}z.anl.atm.nc
-   $COMINgdas/gdas.t${cyc}z.anl.atm.nc
-   $GETGES_NWG/$envir/gfs.$day/gfs.t${cyc}z.anl.atm.nc
-   $COMINgfs/gfs.t${cyc}z.anl.atm.nc'
+   $GETGES_NWG/$envir/gdas.$day/gdas.t${cyc}z.analysis.atm.a006.nc
+   $COMINgdas/model/atmos/history/gdas.t${cyc}z.analysis.atm.a006.nc
+   $GETGES_NWG/$envir/gfs.$day/gfs.t${cyc}z.analysis.atm.a006.nc
+   $COMINgfs/model/atmos/history/gfs.t${cyc}z.analysis.atm.a006.nc'
    fhbeg=00
    ;;
   nsfges) geslist='
@@ -1283,10 +1284,10 @@ elif [[ "$netwk" = "global" ]];then
    $GETGES_NWG/$envir/gfs.$day/gfs.t${cyc}z.sfc.f$gh.nc
    $COMINgfs/gfs.t${cyc}z.sfc.f$gh.nc'
    getlist00='
-   $GETGES_NWG/$envir/gdas.$day/gdas.t${cyc}z.anl.sfc.nc
-   $COMINgdas/gdas.t${cyc}z.anl.sfc.nc
-   $GETGES_NWG/$envir/gfs.$day/gfs.t${cyc}z.anl.sfc.nc
-   $COMINgfs/gfs.t${cyc}z.anl.sfc.nc'
+   $GETGES_NWG/$envir/gdas.$day/gdas.t${cyc}z.analysis.sfc.a006.nc
+   $COMINgdas/gdas.t${cyc}z.analysis.sfc.a006.nc
+   $GETGES_NWG/$envir/gfs.$day/gfs.t${cyc}z.analysis.sfc.a006.nc
+   $COMINgfs/gfs.t${cyc}z.analysis.sfc.a006.nc'
    fhbeg=00
    ;;
   nstcur) geslist='
@@ -1336,18 +1337,18 @@ if [[ $valid -lt 20000000 ]];then
  echo '************************************************************' >&2
 fi
 if [[ $($NDATE 0 $valid 2>/dev/null) != $valid ]];then
- echo getges_nc.sh: invalid date $valid >&2
+ echo getges_nc_v17.sh: invalid date $valid >&2
  exit 2
 fi
 if [[ -z "$geslist" ]];then
- echo getges_nc.sh: filetype $typef or resolution $resol not recognized >&2
+ echo getges_nc_v17.sh: filetype $typef or resolution $resol not recognized >&2
  exit 2
 fi
 
 #-------------------------------------------------------------------------------
 # Loop until guess is found.
 fh=$fhbeg
-if [ -z "$PDY" ];then echo "getges_nc.sh WARNING: \$PDY variable not set" >&2; fi
+if [ -z "$PDY" ];then echo "getges_nc_v17.sh WARNING: \$PDY variable not set" >&2; fi
 while [[ $fh -le $fhend ]];do
  ((fhm6=10#$fh-6))
  [[ $fhm6 -lt 10 && $fhm6 -ge 0 ]]&&fhm6=0$fhm6
@@ -1393,8 +1394,8 @@ while [[ $fh -le $fhend ]];do
      [[ $cyc -ne $bn ]]  && break 1
   fi
   gesbn=`basename $ges`
-  logfbn=${gesbn/atm/log}
-  logfbn=${logfbn/nc/txt}
+  logfbn=$(echo ${gesbn/atm/log})
+  logfbn=$(echo ${logfbn/nc/txt})
   logf=$dn/$logfbn
   if [[ $quiet = NO ]]; then
     echo Checking: $logf >&2
@@ -1410,7 +1411,7 @@ while [[ $fh -le $fhend ]];do
  [[ $fh -lt 10 ]]&&fh=0$fh
 done
 if [[ $fh -gt $fhend ]];then
- echo getges_nc.sh: unable to find $netwk.$envir.$typef.$resol.$valid >&2
+ echo getges_nc_v17.sh: unable to find $netwk.$envir.$typef.$resol.$valid >&2
  exit 8
 fi
 
