@@ -5,3 +5,4 @@ source "${HOMEprepobs:-}/versions/spack.ver"
 export spack_stack_mod_path="/ncrc/proj/epic/spack-stack/c6/spack-stack-${spack_stack_ver}/envs/${spack_env}/install/modulefiles/Core"
 
 export cmake_ver=3.27.9
+export gfs_ver=v17.0

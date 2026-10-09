@@ -4,3 +4,5 @@ source "${HOMEprepobs:-}/versions/spack.ver"
 export spack_stack_ver=1.9.2
 export cmake_ver=3.27.9
 export spack_stack_mod_path="/contrib/spack-stack/spack-stack-${spack_stack_ver}/envs/${spack_env}/install/modulefiles/Core"
+
+export gfs_ver=v17.0
